@@ -5,9 +5,14 @@
 package pdfwordcount;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
@@ -17,8 +22,7 @@ import javax.swing.filechooser.FileFilter;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-    File statusFile;
-    FileWriter statusWriter;
+    OutputStreamWriter statusWriter;
 
     /**
      * Creates new form MainWindow
@@ -26,15 +30,8 @@ public class MainWindow extends javax.swing.JFrame {
     public MainWindow() {
         initComponents();
 
-        try {
-            statusFile = new File("output.txt");
-            if (!statusFile.exists()) {
-                statusFile.createNewFile();
-            }
-            statusWriter = new FileWriter(statusFile);
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+
+        tfOutput.setText(new File("output.txt").getAbsolutePath());
 
     }
 
@@ -48,19 +45,20 @@ public class MainWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        tfFolderLocation = new javax.swing.JTextField();
+        tfInputDirectoryLocation = new javax.swing.JTextField();
         bFileChooser = new javax.swing.JButton();
         bStart = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         taStatus = new javax.swing.JTextArea();
-        bExport = new javax.swing.JButton();
+        tfOutput = new javax.swing.JTextField();
+        fcOutput = new javax.swing.JButton();
 
         jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Word Frequency Counter v1.0");
 
-        tfFolderLocation.setText("Select a directory");
+        tfInputDirectoryLocation.setText("Select a directory");
 
         bFileChooser.setText("...");
         bFileChooser.addActionListener(new java.awt.event.ActionListener() {
@@ -80,27 +78,31 @@ public class MainWindow extends javax.swing.JFrame {
         taStatus.setRows(5);
         jScrollPane1.setViewportView(taStatus);
 
-        bExport.setText("Export");
+        fcOutput.setText("jButton2");
+        fcOutput.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fcOutputActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(bExport)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(tfOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(fcOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bStart, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(tfFolderLocation)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(bFileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(tfInputDirectoryLocation)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(bFileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -108,14 +110,15 @@ public class MainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfFolderLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tfInputDirectoryLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bFileChooser))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bStart)
-                    .addComponent(bExport))
+                    .addComponent(tfOutput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fcOutput))
                 .addContainerGap())
         );
 
@@ -123,28 +126,30 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bFileChooserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bFileChooserActionPerformed
-        JFileChooser jfc = new JFileChooser();
-        jfc.setFileFilter(new FolderFilter());
-        jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        int showOpenDialogResponse = jfc.showOpenDialog(this);
+        JFileChooser inputDIrectoryChooser = new JFileChooser();
+        inputDIrectoryChooser.setFileFilter(new FolderFilter());
+        inputDIrectoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int showOpenDialogResponse = inputDIrectoryChooser.showOpenDialog(this);
 
         if (showOpenDialogResponse == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = jfc.getSelectedFile();
-            tfFolderLocation.setText(selectedFile.getAbsolutePath());
+            File selectedFile = inputDIrectoryChooser.getSelectedFile();
+            tfInputDirectoryLocation.setText(selectedFile.getAbsolutePath());
         }
 
     }//GEN-LAST:event_bFileChooserActionPerformed
 
     private void bStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bStartActionPerformed
-        String directoryPath = tfFolderLocation.getText();
+        String directoryPath = tfInputDirectoryLocation.getText();
         final File directory = new File(directoryPath);
         if (directory.exists()) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    openOutputFile();
                     setStatus("Starting with '" + directory.getAbsolutePath() + "'");
                     traverseDirectory(directory);
                     setStatus("Completed\n\n");
+                    closeOutputFile();
                 }
             }).start();
 
@@ -152,6 +157,21 @@ public class MainWindow extends javax.swing.JFrame {
             setStatus("Please select a valid Directory");
         }
     }//GEN-LAST:event_bStartActionPerformed
+
+    private void fcOutputActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fcOutputActionPerformed
+        JFileChooser outputFileChooser = new JFileChooser();
+        outputFileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        int showOpenDialogResponse = outputFileChooser.showSaveDialog(this);
+
+        if (showOpenDialogResponse == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = outputFileChooser.getSelectedFile();
+            if (Util.isExtensionMatch(selectedFile, "txt") || Util.isExtensionMatch(selectedFile, "rtf")) {
+                tfOutput.setText(selectedFile.getAbsolutePath());
+            } else {
+                setStatus("Please select a valid file ( *.txt, *.rtf), output will be appended");
+            }
+        }
+    }//GEN-LAST:event_fcOutputActionPerformed
 
     /**
      * @param args the command line arguments
@@ -188,13 +208,14 @@ public class MainWindow extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton bExport;
     private javax.swing.JButton bFileChooser;
     private javax.swing.JButton bStart;
+    private javax.swing.JButton fcOutput;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea taStatus;
-    private javax.swing.JTextField tfFolderLocation;
+    private javax.swing.JTextField tfInputDirectoryLocation;
+    private javax.swing.JTextField tfOutput;
     // End of variables declaration//GEN-END:variables
 
     void setStatus(String text) {
@@ -223,7 +244,7 @@ public class MainWindow extends javax.swing.JFrame {
                 setStatus(root.getName() + " - Child is null");
             }
 
-        } else {
+        } else if (Util.isRightFile(root)) {
             try {
                 processFile(root);
             } catch (IOException ex) {
@@ -242,6 +263,36 @@ public class MainWindow extends javax.swing.JFrame {
         setStatus("Total words = " + words.size());
         for (int i = 0; i < words.size(); i++) {
             printToFile("\t" + String.format("%6d", words.get(i).count) + "\t" + words.get(i).text);
+        }
+    }
+
+    private void openOutputFile() {
+        try {
+            String fileLocation = tfOutput.getText();
+
+            File statusFile = new File(fileLocation);
+            if (statusFile.exists()) {
+                statusFile.delete();
+            } else {
+                statusFile.createNewFile();
+            }
+
+            FileOutputStream fos = new FileOutputStream(statusFile);
+            statusWriter = new OutputStreamWriter(fos, Charset.forName("UTF-8").newEncoder());
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void closeOutputFile() {
+        if (statusWriter != null) {
+            try {
+                statusWriter.close();
+                statusWriter = null;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

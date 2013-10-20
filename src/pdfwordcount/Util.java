@@ -19,6 +19,10 @@ import org.apache.pdfbox.util.PDFTextStripper;
  */
 public class Util {
 
+    public static boolean isRightFile(File file) {
+        return isExtensionMatch(file, "pdf") || isExtensionMatch(file, "txt");
+    }
+
     public static String getText(File file) throws IOException {
         if (isExtensionMatch(file, "pdf")) {
             return getTextFromPDF(file);
@@ -30,14 +34,14 @@ public class Util {
     }
 
     public static ArrayList<Word> getWordFrequencies(String documentString) {
-        String[] splittedWordBySpace = documentString.split(" \n\r");
+        String[] splittedWordBySpace = documentString.split("[^a-zA-Z]");
 
         TreeMap<String, Word> map = new TreeMap<>();
         for (int i = 0; i < splittedWordBySpace.length; i++) {
             if (splittedWordBySpace[i].length() <= 0) {
                 continue;
             }
-            String singleWord = splittedWordBySpace[i];
+            String singleWord = splittedWordBySpace[i].trim();
             Word word = map.get(singleWord);
             if (word == null) {
                 map.put(singleWord, new Word(singleWord));
