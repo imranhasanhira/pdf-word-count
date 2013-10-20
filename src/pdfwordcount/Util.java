@@ -33,8 +33,8 @@ public class Util {
         return "";
     }
 
-    public static ArrayList<Word> getWordFrequencies(String documentString) {
-        String[] splittedWordBySpace = documentString.split("[^a-zA-Z]");
+    public static ArrayList<Word> getWordFrequencies(String documentString, String regex) {
+        String[] splittedWordBySpace = documentString.split(regex);
 
         TreeMap<String, Word> map = new TreeMap<>();
         for (int i = 0; i < splittedWordBySpace.length; i++) {

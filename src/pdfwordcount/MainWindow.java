@@ -45,6 +45,7 @@ public class MainWindow extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
+        jComboBox1 = new javax.swing.JComboBox();
         tfInputDirectoryLocation = new javax.swing.JTextField();
         bFileChooser = new javax.swing.JButton();
         bStart = new javax.swing.JButton();
@@ -52,13 +53,16 @@ public class MainWindow extends javax.swing.JFrame {
         taStatus = new javax.swing.JTextArea();
         tfOutput = new javax.swing.JTextField();
         fcOutput = new javax.swing.JButton();
+        tfRegex = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         jButton1.setText("jButton1");
 
+        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Word Frequency Counter v1.0");
-
-        tfInputDirectoryLocation.setText("Select a directory");
 
         bFileChooser.setText("...");
         bFileChooser.addActionListener(new java.awt.event.ActionListener() {
@@ -85,24 +89,37 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
+        tfRegex.setText("[^a-zA-Z]");
+
+        jLabel1.setText("RegEX to split words");
+
+        jLabel2.setText("Input directory");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(tfOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 344, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(fcOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(bStart, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addComponent(tfInputDirectoryLocation)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(bFileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(tfInputDirectoryLocation)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(bFileChooser, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tfRegex))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -111,9 +128,14 @@ public class MainWindow extends javax.swing.JFrame {
                 .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(tfInputDirectoryLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(bFileChooser))
+                    .addComponent(bFileChooser)
+                    .addComponent(jLabel2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 254, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(tfRegex, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(bStart)
@@ -212,10 +234,14 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JButton bStart;
     private javax.swing.JButton fcOutput;
     private javax.swing.JButton jButton1;
+    private javax.swing.JComboBox jComboBox1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea taStatus;
     private javax.swing.JTextField tfInputDirectoryLocation;
     private javax.swing.JTextField tfOutput;
+    private javax.swing.JTextField tfRegex;
     // End of variables declaration//GEN-END:variables
 
     void setStatus(String text) {
@@ -256,10 +282,11 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void processFile(File file) throws IOException {
         setStatus("Processing '" + file.getName() + "'");
-        String text = Util.getText(file);
-        setStatus("Total character count = " + text.length());
+        String fullDocumentAsText = Util.getText(file);
+        setStatus("Total character count = " + fullDocumentAsText.length());
 
-        ArrayList<Word> words = Util.getWordFrequencies(text);
+        String regexToSplitWord = tfRegex.getText();
+        ArrayList<Word> words = Util.getWordFrequencies(fullDocumentAsText, regexToSplitWord);
         setStatus("Total words = " + words.size());
         for (int i = 0; i < words.size(); i++) {
             printToFile("\t" + String.format("%6d", words.get(i).count) + "\t" + words.get(i).text);
